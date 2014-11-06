@@ -11,23 +11,24 @@ package Lenguaje;
  */
 public class TokenJson 
 {
-    public static final String L_CORCHETE = "L_CORCHETE ";
-    public static final String R_CORCHETE = "R_CORCHETE ";
+    public static final String TOKEN_L_CORCHETE = "L_CORCHETE";
+    public static final String TOKEN_R_CORCHETE = "R_CORCHETE";
     
-    public static final String L_LLAVE = "L_LLAVE ";
-    public static final String R_LLAVE = "R_LLAVE ";
+    public static final String TOKEN_L_LLAVE = "L_LLAVE";
+    public static final String TOKEN_R_LLAVE = "R_LLAVE";
     
-    public static final String COMA = "COMA ";
-    public static final String DOS_PUNTOS = "DOS_PUNTOS ";
+    public static final String TOKEN_COMA = "COMA";
+    public static final String TOKEN_DOS_PUNTOS = "DOS_PUNTOS";
     
-    public static final String LITERAL_CADENA = "LITERAL_CADENA "; 
-    public static final String LITERAL_NUM = "LITERAL_NUM ";
+    public static final String TOKEN_LITERAL_CADENA = "LITERAL_CADENA"; 
+    public static final String TOKEN_LITERAL_NUM = "LITERAL_NUM";
     
-    public static final String PR_TRUE = "PR_TRUE "; 
-    public static final String PR_FALSE = "PR_FALSE "; 
-    public static final String PR_NULL = "PR_NULL "; 
+    public static final String TOKEN_PR_TRUE = "PR_TRUE"; 
+    public static final String TOKEN_PR_FALSE = "PR_FALSE"; 
+    public static final String TOKEN_PR_NULL = "PR_NULL"; 
     
-    public static final String EOF = "EOF "; 
+    public static final String TOKEN_EOF = "EOF";
+    public static final String TOKEN_VACIO = "VACIO";
    
 }
 
