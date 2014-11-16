@@ -8,12 +8,13 @@ package CompiladorJson;
 import Clase.GramaticJson;
 import Exception.TokenInvalidoException;
 import static Lenguaje.TokenJson.TOKEN_EOF;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -27,17 +28,13 @@ public class MainJson {
      */
     public static void main(String[] args) {
         
-        ArrayList<GramaticJson> listaG = new ArrayList<>();
-        ArrayList<GramaticJson> lg = new ArrayList<>();
-
+        ArrayList<GramaticJson> listaGramatica = null;
+        
         try 
         {
-            //final String cadenaJson = "[ \"data\"  [\"table\", { \"id\" : \"persona\" },  [\"column\", { \"id\" : \"ci\" },\"1495256\"],[ \"column\",{ \"id\" : \"nombre\" },\"Juan Perez\" ]  ],  [ \"sql\",    { \"id\" : \"select_all\" },    \"select * from persona order by ci\" ]]";
-            
+            //// RUTA del input Json            
             String direccionArchivoInput = "C:/Users/marco/Documents/NetBeansProjects/input.txt";
             
-            //// RUTA del input que se encuentra dentro del proyecto            
-            //String direccionArchivoInput = "../input.txt";
             File archivoEntrada = new File(direccionArchivoInput);
             
             //String direccionArchivoOutput = "C:/Users/marco/Documents/NetBeansProjects/output.txt";
@@ -46,80 +43,113 @@ public class MainJson {
             // lee el archivo de entrada
             try (Scanner entrada = new Scanner(archivoEntrada))
             {
-                String cadenaEntrada;
-                GramaticJson gramatic;
-                
-                ArrayList<GramaticJson> listaGramatica = new ArrayList<>();
-                
-                while (entrada.hasNext()) 
-                { 
-                    cadenaEntrada = entrada.nextLine();
-                    //// Verifica los lexemas y tokens ingresados
-                    listaG = CompiladorJson.AnalizadorLexico(cadenaEntrada);
-                    
-                    for (GramaticJson g : listaG)
-                    {   
-                        gramatic = new GramaticJson();
-                        gramatic.setLexema(g.getLexema());
-                        gramatic.setToken(g.getToken());
-                        gramatic.setTraductor(g.getTraductor());
-                        gramatic.setNroLinea(g.getNroLinea());
-                        
-                        listaGramatica.add(gramatic);
-                    }
-                }
-                
-                //// si no hay errores lexicos, se agrega fin de archivo
-                gramatic = new GramaticJson();
-                gramatic.setLexema("EOF");
-                gramatic.setToken(TOKEN_EOF);
-                gramatic.setTraductor("EOF");
-                listaGramatica.add(gramatic);
-                
-                
-                //// verifica que este sintacticamente correcto los token
-                boolean sintaxis = CompiladorJson.AnalizadorSintactico(listaGramatica);
-
-                if(sintaxis)
-                {   
-                    System.out.println("\n##### El lenguaje es sintacticamente correcto ####");
-
-                    //// proximamente
-                    CompiladorJson.GeneradorXML(listaG);
-                }
-                else
-                {
-                    System.out.println("\n##### El lenguaje es sintacticamente incorrecto ####");
-                }
-                
+                //// verifica verifica el lexema de Json y devuelve lista de TokenJson
+                listaGramatica = obtenerListaTokenJson(entrada);
             }
             catch (FileNotFoundException e)
             {
                 System.out.println(e.getMessage());
+                System.exit(1);
             }
-                        
-            //// Verifica los lexemas y tokens ingresados
-           /* listaGramatica = CompiladorJson.AnalizadorLexico(cadenaJson);
             
-            //// verifica que este sintacticamente correcto los token
+            //// verifica que este sintacticamente correcto los tokenJson
             boolean sintaxis = CompiladorJson.AnalizadorSintactico(listaGramatica);
-            
-            if(sintaxis)
+
+            if(!sintaxis)
             {   
-                System.out.println("\n##### El lenguaje es sintacticamente correcto ####");
-                
-                //// proximamente
-                CompiladorJson.GeneradorXML(listaGramatica);
-            }
-            else
-            {
                 System.out.println("\n##### El lenguaje es sintacticamente incorrecto ####");
-            }*/
+                System.exit(1);
+            }
             
+            System.out.println("\n##### El lenguaje es sintacticamente correcto ####");
+
+            //// Traduce a XML - Retorna Etiquetas XML
+            ArrayList ListaEtiquetaXML = CompiladorJson.GeneradorXML(listaGramatica);
+            ImprimirEtiquetaXML(ListaEtiquetaXML);
+            CrearArchivoXML(ListaEtiquetaXML);
 
         } catch (TokenInvalidoException ex) {
-            Logger.getLogger(MainJson.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("lexema no reconocido: " + ex.getMessage());
+            System.exit(1);
         }
         
     }
+    
+    
+    public static ArrayList<GramaticJson> obtenerListaTokenJson(Scanner entrada) throws TokenInvalidoException
+    {
+        String cadenaEntrada;
+        GramaticJson gramatic;
+        ArrayList<GramaticJson> listaG = new ArrayList<>();
+        ArrayList<GramaticJson> listaGramatica = new ArrayList<>();
+
+        while (entrada.hasNext()) 
+        { 
+            cadenaEntrada = entrada.nextLine();
+            //// Verifica los lexemas y tokens ingresados
+            listaG = CompiladorJson.AnalizadorLexico(cadenaEntrada);
+
+            for (GramaticJson g : listaG)
+            {   
+                gramatic = new GramaticJson();
+                gramatic.setLexema(g.getLexema());
+                gramatic.setToken(g.getToken());
+                gramatic.setTraductor(g.getTraductor());
+                gramatic.setNroLinea(g.getNroLinea());
+
+                listaGramatica.add(gramatic);
+            }
+        }
+
+        //// si no hay errores lexicos, se agrega fin de archivo
+        gramatic = new GramaticJson();
+        gramatic.setLexema("EOF");
+        gramatic.setToken(TOKEN_EOF);
+        gramatic.setTraductor("EOF");
+        listaGramatica.add(gramatic);
+                
+        return listaGramatica; 
+    }    
+         
+    
+    public static void ImprimirEtiquetaXML(ArrayList EtiquetaXML)
+    {
+        EtiquetaXML.stream().forEach((xml) -> {
+            System.out.println(xml);
+        });
+    } 
+    
+    public static void CrearArchivoXML(ArrayList EtiquetaXML)
+    {
+        String ruta = "C:\\Users\\marco\\Desktop\\XML.txt";
+        
+        try
+        { 
+            File archivo = new File(ruta);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(archivo));
+
+            EtiquetaXML.stream().forEach((xml) -> {
+
+                try {
+                    bw.write((String) xml); 
+                    bw.newLine();
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                    System.exit(1);
+                }
+
+            });
+            
+            bw.close();
+        
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
+            System.exit(1);
+        } 
+        
+    } 
+    
+    
 }

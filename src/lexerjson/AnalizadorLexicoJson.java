@@ -266,7 +266,7 @@ public class AnalizadorLexicoJson
             case LEXER_DOS_PUNTOS:
                 gramatica.setToken(TOKEN_DOS_PUNTOS);
                 gramatica.setNroLinea(nroLinea);
-                gramatica.setTraductor(LEXER_DOS_PUNTOS);
+                gramatica.setTraductor("=");
                 break;
                 
             case LEXER_PR_TRUE:

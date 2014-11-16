@@ -6,9 +6,9 @@
 package CompiladorJson;
 
 import Clase.GramaticJson;
-import static CompiladorJson.CompiladorJson.AnalizadorLexico;
 import Exception.TokenInvalidoException;
 import ParserJson.AnalizadorSintactico;
+import Traductor.TraductorXML;
 import java.util.ArrayList;
 import lexerjson.AnalizadorLexicoJson;
 
@@ -39,9 +39,13 @@ public class CompiladorJson
         return AnalizadorSintactico.VerificarSintaxisJson(listGramatica);
     } 
     
-    
-    public static String GeneradorXML(ArrayList<GramaticJson> gramaticaJson)
+    /**
+     * Traduce de Json a XML
+     * @param listaGramatica
+     * @return Lista de etiquetas de XML
+     */
+    public static ArrayList GeneradorXML(ArrayList<GramaticJson> listaGramatica)
     {
-        return "";
+        return TraductorXML.JsonToXML(listaGramatica);
     } 
 }
